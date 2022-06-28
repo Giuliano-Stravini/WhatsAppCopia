@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "997478195508",
+    "project_id": "whatsappcopia",
+    "storage_bucket": "whatsappcopia.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:997478195508:android:28b46994e44bd64abd8561",
+        "android_client_info": {
+          "package_name": "com.example.whatsappcopia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "997478195508-1n5cnea1o1btfsqktvmn0iatj1jpv7ts.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANCiWOkKlJSVhJuNAA3F7DUd95CCpdGxg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "997478195508-1n5cnea1o1btfsqktvmn0iatj1jpv7ts.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
