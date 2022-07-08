@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:intl/intl.dart';
 import 'package:whatsappcopia/bloc/call_bloc.dart';
+import 'package:whatsappcopia/bloc/contact_bloc.dart';
 import 'package:whatsappcopia/models/message.dart';
+
+import 'models/whatsapp_contact.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    super.initState();
     _localRenderer.initialize();
     _remoteRenderer.initialize();
 
@@ -63,8 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
         _remoteRenderer.srcObject = stream;
       });
     });
-
-    super.initState();
   }
 
   @override
@@ -77,6 +80,16 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ContactListPage(contacts: []),
+                ),
+              );
+            },
+            child: const Icon(Icons.chat)),
         appBar: AppBar(
           title: Text(widget.title),
           elevation: 0,
@@ -128,27 +141,95 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Flexible(
-              child: ListView(
-                children: List.generate(
-                    10,
-                    (index) => Contact(
-                          key: Key(index.toString()),
-                          index: index,
-                        )),
-              ),
+              child: FutureBuilder<List<WhatsAppContact>>(
+                  future: ContactBloc().getAllContact(),
+                  builder: (context, future) {
+                    if (future.data == null) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    return ListView(
+                      children: future.data
+                              ?.map((whatsappContact) => ContactTile(
+                                    key: Key(
+                                        whatsappContact.contact.id.toString()),
+                                    contact: whatsappContact.contact,
+                                  ))
+                              .toList() ??
+                          [],
+                    );
+                  }),
             ),
           ],
         ));
   }
 }
 
-class Contact extends StatelessWidget {
-  const Contact({
+class ContactListPage extends StatelessWidget {
+  const ContactListPage({Key? key, required this.contacts}) : super(key: key);
+
+  final List<WhatsAppContact> contacts;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Select a contact'),
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.search),
+            tooltip: "Search",
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.more_vert),
+            tooltip: "more options",
+          )
+        ],
+      ),
+      body: Flex(
+        direction: Axis.vertical,
+        children: [
+          Flexible(
+            child: FutureBuilder<List<WhatsAppContact>>(
+                future: ContactBloc().getAllContact(contactsCache: contacts),
+                builder: (context, future) {
+                  if (future.data == null) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  return ListView(
+                    shrinkWrap: true,
+                    children: future.data
+                            ?.map((whatsAppContact) => ContactTile(
+                                  key: Key(
+                                      whatsAppContact.contact.id.toString()),
+                                  contact: whatsAppContact.contact,
+                                ))
+                            .toList() ??
+                        [],
+                  );
+                }),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ContactTile extends StatelessWidget {
+  const ContactTile({
     Key? key,
-    required this.index,
+    required this.contact,
   }) : super(key: key);
 
-  final int index;
+  final Contact contact;
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +252,7 @@ class Contact extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text("Contact $index"),
+                Text(contact.displayName),
                 const Text("[last messages]"),
               ],
             ),
